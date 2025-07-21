@@ -40,7 +40,8 @@ export class PlayerController {
       mass: 1,
       shape: new CANNON.Cylinder(0.3, 0.3, 1.6, 8),
       fixedRotation: true,
-      position: new CANNON.Vec3(0, 1.6, 0),
+      // position: new CANNON.Vec3(0, 1.6, 0),
+      position: new CANNON.Vec3(0, 3, 0),
     });
     this.body.linearDamping = 0.9; // để không trượt mãi
 

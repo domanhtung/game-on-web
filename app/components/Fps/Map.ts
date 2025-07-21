@@ -1,5 +1,9 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
+// @ts-ignore
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+
+const mapPath = "/assets/killhouse.glb";
 
 export class GameMap {
   public group: THREE.Group;
@@ -13,13 +17,59 @@ export class GameMap {
 
     this.addBoundaryWalls(scene, world);
 
+    // Load mô hình GLB của bản đồ
+    this.loadGLBMap(scene, world);
+
     // Tường
-    this.addWall(scene, world, { x: 0, y: 2, z: -10 }, { x: 20, y: 4, z: 1 }); // wall ở trước mặt
+    // this.addWall(scene, world, { x: 0, y: 2, z: -10 }, { x: 20, y: 4, z: 1 }); // wall ở trước mặt
 
     // Thêm vài box
-    this.addBox(scene, world, { x: 5, y: 1, z: 5 }, { x: 2, y: 2, z: 2 });
+    // this.addBox(scene, world, { x: 5, y: 1, z: 5 }, { x: 2, y: 2, z: 2 });
 
     scene.add(this.group);
+  }
+
+  loadGLBMap(scene: THREE.Scene, world: CANNON.World) {
+    const loader = new GLTFLoader();
+
+    loader.load(mapPath, (gltf: { scene: THREE.Object3D }) => {
+      const model = gltf.scene;
+      model.scale.set(1.5, 1.5, 1.5); // có thể chỉnh tỉ lệ ở đây nếu cần
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+
+          // 🎯 Tạo collider thủ công nếu tên object bắt đầu bằng "collider_"
+          if (mesh.name.toLowerCase().startsWith("collider")) {
+            console.log("Adding collider for mesh:", mesh.name);
+            // Tạo collider dựa trên kích thước của mesh
+            const bbox = new THREE.Box3().setFromObject(mesh);
+            const size = new THREE.Vector3();
+            const center = new THREE.Vector3();
+            bbox.getSize(size);
+            bbox.getCenter(center);
+
+            const shape = new CANNON.Box(
+              new CANNON.Vec3(size.x / 3, size.y / 2, size.z / 3)
+            );
+            const body = new CANNON.Body({ mass: 0 });
+            body.addShape(shape);
+            body.position.set(center.x, center.y, center.z);
+            world.addBody(body);
+            this.bodies.push(body);
+
+            // Ẩn collider khỏi scene (chỉ dùng cho vật lý)
+            // mesh.visible = false;
+          }else {
+            mesh.visible = false; // Ẩn mô hình 3D nếu không cần hiển thị
+          }
+        }
+      });
+
+      this.group.add(model);
+    });
   }
 
   addBoundaryWalls(scene: THREE.Scene, world: CANNON.World) {
@@ -64,7 +114,7 @@ export class GameMap {
     const geometry = new THREE.BoxGeometry(80, 1, 80);
     const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, -0.5, 0);
+    mesh.position.set(0, -1.2, 0);
     mesh.receiveShadow = true;
 
     const shape = new CANNON.Box(new CANNON.Vec3(40, 0.5, 40));

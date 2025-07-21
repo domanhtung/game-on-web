@@ -1,10 +1,17 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
+// @ts-ignore
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+const humanPath = "/assets/human.glb";
 
 export class BotEnemy {
-  public mesh: THREE.Mesh;
+  public mesh: THREE.Object3D;
   public body: CANNON.Body;
   public isAlive: boolean = true;
+
+  private targetPosition: CANNON.Vec3 | undefined;
+  private speed = 2;
+  private tmpVec = new CANNON.Vec3();
 
   constructor(
     position: CANNON.Vec3,
@@ -12,9 +19,8 @@ export class BotEnemy {
     world: CANNON.World,
     material: CANNON.Material
   ) {
-    const size = new CANNON.Vec3(1, 2, 1); // chiều cao như player
+    const size = new CANNON.Vec3(0.07, 1.6, 0.07);
 
-    // Cannon body
     const shape = new CANNON.Box(size);
     this.body = new CANNON.Body({
       mass: 0,
@@ -24,16 +30,37 @@ export class BotEnemy {
     this.body.addShape(shape);
     world.addBody(this.body);
 
-    // Three mesh
-    const geometry = new THREE.BoxGeometry(size.x * 2, size.y * 2, size.z * 2);
-    const materialMesh = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-    this.mesh = new THREE.Mesh(geometry, materialMesh);
-    this.mesh.castShadow = true;
+    this.mesh = new THREE.Group();
     scene.add(this.mesh);
+
+    const loader = new GLTFLoader();
+    loader.load(humanPath, (gltf: { scene: THREE.Object3D }) => {
+      const model = gltf.scene;
+      model.scale.set(0.028, 0.028, 0.028);
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          child.castShadow = true;
+        }
+      });
+      this.mesh.add(model);
+    });
   }
 
-  update() {
-    this.mesh.position.copy(this.body.position as unknown as THREE.Vector3);
+  setTarget(target: CANNON.Vec3) {
+    this.targetPosition = target.clone();
+  }
+
+  move(delta: number, world: CANNON.World) {
+
+    // Áp dụng vận tốc
+    // this.body.velocity.x += 0.01;
+    // this.body.velocity.z += 0.01;
+    // console.log("Bot moving to target:", this.tmpVec);
+  }
+
+  update(delta: number, world: CANNON.World) {
+    this.move(delta, world);
+    this.mesh.position.copy(this.body.velocity as unknown as THREE.Vector3);
     this.mesh.quaternion.copy(
       this.body.quaternion as unknown as THREE.Quaternion
     );
@@ -42,7 +69,13 @@ export class BotEnemy {
   takeDamage() {
     if (this.isAlive) {
       this.isAlive = false;
-      this.mesh.material = new THREE.MeshStandardMaterial({ color: 0x444444 });
+      this.mesh.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          (child as THREE.Mesh).material = new THREE.MeshStandardMaterial({
+            color: 0x444444,
+          });
+        }
+      });
     }
   }
 }

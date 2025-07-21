@@ -33,11 +33,12 @@ export default function Game() {
     player.addToScene(app.scene, world);
     const bots: BotEnemy[] = [];
     const bot = new BotEnemy(
-      new CANNON.Vec3(5, 1, -15),
+      new CANNON.Vec3(5, 0, -8),
       app.scene,
       world,
       slipperyMat
     );
+    bot.setTarget(new CANNON.Vec3(5, 0, -8)); // đặt mục tiêu ban đầu
     bots.push(bot);
     const gun = new Gun(app.scene, player.camera, bots);
     gun.load(gunPath);
@@ -48,22 +49,22 @@ export default function Game() {
     new GameMap(app.scene, world);
 
     // Walls
-    new Wall(
-      new CANNON.Vec3(1, 2, 5), // size
-      new CANNON.Vec3(-3, 0, -10), // position
-      0x8888ff, // color
-      app.scene,
-      world,
-      slipperyMat
-    );
-    new Wall(
-      new CANNON.Vec3(0.5, 2, 2.5),
-      new CANNON.Vec3(3, 0, -10),
-      0xff8888,
-      app.scene,
-      world,
-      slipperyMat
-    );
+    // new Wall(
+    //   new CANNON.Vec3(1, 2, 5), // size
+    //   new CANNON.Vec3(-3, 0, -10), // position
+    //   0x8888ff, // color
+    //   app.scene,
+    //   world,
+    //   slipperyMat
+    // );
+    // new Wall(
+    //   new CANNON.Vec3(0.5, 2, 2.5),
+    //   new CANNON.Vec3(3, 0, -10),
+    //   0xff8888,
+    //   app.scene,
+    //   world,
+    //   slipperyMat
+    // );
 
     // Mouse
     document.addEventListener("mousemove", (e) => {
@@ -94,7 +95,7 @@ export default function Game() {
       const delta = clock.getDelta();
       world.step(fixedTimeStep, delta, maxSubSteps);
       player.update();
-      bots.forEach((b) => b.update());
+      bots.forEach((b) => b.update(delta, world));
       app.render(player.camera);
     };
     animate();
