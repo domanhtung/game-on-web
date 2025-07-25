@@ -34,7 +34,7 @@ export class GameMap {
 
     loader.load(mapPath, (gltf: { scene: THREE.Object3D }) => {
       const model = gltf.scene;
-      model.scale.set(1.5, 1.5, 1.5); // có thể chỉnh tỉ lệ ở đây nếu cần
+      // model.scale.set(1.5, 1.5, 1.5); // có thể chỉnh tỉ lệ ở đây nếu cần
       model.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
@@ -52,7 +52,7 @@ export class GameMap {
             bbox.getCenter(center);
 
             const shape = new CANNON.Box(
-              new CANNON.Vec3(size.x / 3, size.y / 2, size.z / 3)
+              new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2)
             );
             const body = new CANNON.Body({ mass: 0 });
             body.addShape(shape);
@@ -61,9 +61,7 @@ export class GameMap {
             this.bodies.push(body);
 
             // Ẩn collider khỏi scene (chỉ dùng cho vật lý)
-            // mesh.visible = false;
-          }else {
-            mesh.visible = false; // Ẩn mô hình 3D nếu không cần hiển thị
+            mesh.visible = false;
           }
         }
       });
@@ -73,7 +71,7 @@ export class GameMap {
   }
 
   addBoundaryWalls(scene: THREE.Scene, world: CANNON.World) {
-    const height = 4;
+    const height = 20;
     const thickness = 1;
     const size = 80;
 
@@ -81,7 +79,7 @@ export class GameMap {
     this.addWall(
       scene,
       world,
-      { x: 0, y: height / 2, z: -size / 2 },
+      { x: 0, y: 0, z: -size / 2 },
       { x: size, y: height, z: thickness }
     );
 
@@ -89,7 +87,7 @@ export class GameMap {
     this.addWall(
       scene,
       world,
-      { x: 0, y: height / 2, z: size / 2 },
+      { x: 0, y: 0, z: size / 2 },
       { x: size, y: height, z: thickness }
     );
 
@@ -97,7 +95,7 @@ export class GameMap {
     this.addWall(
       scene,
       world,
-      { x: size / 2, y: height / 2, z: 0 },
+      { x: size / 2, y: 0, z: 0 },
       { x: thickness, y: height, z: size }
     );
 
@@ -105,7 +103,7 @@ export class GameMap {
     this.addWall(
       scene,
       world,
-      { x: -size / 2, y: height / 2, z: 0 },
+      { x: -size / 2, y: 0, z: 0 },
       { x: thickness, y: height, z: size }
     );
   }

@@ -13,6 +13,7 @@ import { Lighting } from "./Fps/Lighting";
 import { BotEnemy } from "./Fps/BotEnemy";
 
 const gunPath = "/assets/pistol.glb";
+import cannonDebugger from "cannon-es-debugger";
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,6 +43,10 @@ export default function Game() {
     bots.push(bot);
     const gun = new Gun(app.scene, player.camera, bots);
     gun.load(gunPath);
+    // Khởi tạo debugger
+    const debugMeshes = cannonDebugger(app.scene, world, {
+      color: 0x00ff00, // màu của collider
+    });
 
     // Light
     new Lighting(app.scene, false);
@@ -96,6 +101,7 @@ export default function Game() {
       world.step(fixedTimeStep, delta, maxSubSteps);
       player.update();
       bots.forEach((b) => b.update(delta, world));
+      debugMeshes.update();
       app.render(player.camera);
     };
     animate();

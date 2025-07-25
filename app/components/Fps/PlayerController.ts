@@ -15,7 +15,7 @@ export class PlayerController {
 
   private walkSpeed = 15;
   private runSpeed = 30;
-  private jumpForce = 9;
+  private jumpForce = 6;
   private jumpMovementFactor = 0.2; // giảm tốc độ khi đang nhảy
 
   public yaw = 0;
