@@ -3,11 +3,13 @@ import * as CANNON from "cannon-es";
 // @ts-ignore
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-const mapPath = "/assets/killhouse.glb";
+const mapPath = "/assets/map.glb";
 
 export class GameMap {
   public group: THREE.Group;
   public bodies: CANNON.Body[] = [];
+  groundWidth = 110;
+  groundDepth = 250;
 
   constructor(scene: THREE.Scene, world: CANNON.World) {
     this.group = new THREE.Group();
@@ -15,7 +17,7 @@ export class GameMap {
     // Ground
     this.addGround(scene, world);
 
-    this.addBoundaryWalls(scene, world);
+    // this.addBoundaryWalls(scene, world);
 
     // Load mô hình GLB của bản đồ
     this.loadGLBMap(scene, world);
@@ -109,13 +111,13 @@ export class GameMap {
   }
 
   addGround(scene: THREE.Scene, world: CANNON.World) {
-    const geometry = new THREE.BoxGeometry(80, 1, 80);
+    const geometry = new THREE.BoxGeometry(this.groundWidth, 1, this.groundDepth);
     const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, -1.2, 0);
     mesh.receiveShadow = true;
 
-    const shape = new CANNON.Box(new CANNON.Vec3(40, 0.5, 40));
+    const shape = new CANNON.Box(new CANNON.Vec3(this.groundWidth / 2, 0.5, this.groundDepth / 2));
     const body = new CANNON.Body({ mass: 0 });
     body.addShape(shape);
     body.position.set(0, -0.5, 0);

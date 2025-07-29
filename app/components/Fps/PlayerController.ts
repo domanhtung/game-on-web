@@ -9,6 +9,7 @@ export class PlayerController {
   public pitchObject: THREE.Object3D;
   public keys: KeyMap = {};
   public body: CANNON.Body;
+  public characterHeight = 3.2; // chiều cao của nhân vật
 
   private direction = new THREE.Vector3();
   private canJump = false;
@@ -38,10 +39,9 @@ export class PlayerController {
 
     this.body = new CANNON.Body({
       mass: 1,
-      shape: new CANNON.Cylinder(0.3, 0.3, 1.6, 8),
+      shape: new CANNON.Cylinder(0.3, 0.3, this.characterHeight, 8),
       fixedRotation: true,
-      // position: new CANNON.Vec3(0, 1.6, 0),
-      position: new CANNON.Vec3(0, 3, 0),
+      position: new CANNON.Vec3(0, this.characterHeight, 0),
     });
     this.body.linearDamping = 0.9; // để không trượt mãi
 
