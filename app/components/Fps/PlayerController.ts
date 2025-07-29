@@ -9,15 +9,15 @@ export class PlayerController {
   public pitchObject: THREE.Object3D;
   public keys: KeyMap = {};
   public body: CANNON.Body;
-  public characterHeight = 3.2; // chiều cao của nhân vật
+  public characterHeight = 5; // chiều cao của nhân vật
 
   private direction = new THREE.Vector3();
   private canJump = false;
 
-  private walkSpeed = 15;
-  private runSpeed = 30;
-  private jumpForce = 6;
-  private jumpMovementFactor = 0.2; // giảm tốc độ khi đang nhảy
+  private walkSpeed = 18;
+  private runSpeed = 36;
+  private jumpForce = 10;
+  private jumpMovementFactor = 0.3; // giảm tốc độ khi đang nhảy
 
   public yaw = 0;
   public pitch = 0;
